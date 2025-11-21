@@ -39,7 +39,7 @@ def cap_rate_endpoint(payload: CapRateRequest) -> ResponseEnvelope:
 def cash_flow_endpoint(payload: CashFlowRequest) -> ResponseEnvelope:
     """Run the cash flow engine using financing, rent, and expense inputs."""
 
-    result = calculate_cash_flow(payload.dict())
+    result = calculate_cash_flow(payload.model_dump())
     return ResponseEnvelope(data=result)
 
 
@@ -55,7 +55,7 @@ def dscr_endpoint(payload: DSCRRequest) -> ResponseEnvelope:
 def rent_estimate_endpoint(payload: RentEstimateRequest) -> ResponseEnvelope:
     """Estimate rent using a rule-based model with tunable coefficients."""
 
-    estimated_rent, assumptions = estimate_rent(payload.dict())
+    estimated_rent, assumptions = estimate_rent(payload.model_dump())
     return ResponseEnvelope(data={"estimated_rent": estimated_rent, "assumptions": assumptions})
 
 
@@ -63,7 +63,7 @@ def rent_estimate_endpoint(payload: RentEstimateRequest) -> ResponseEnvelope:
 def get_assumptions_endpoint() -> ResponseEnvelope:
     """Return the current in-memory assumption set used by calculations."""
 
-    return ResponseEnvelope(data=get_assumptions().dict())
+    return ResponseEnvelope(data=get_assumptions().model_dump())
 
 
 @router.put("/assumptions", response_model=ResponseEnvelope, summary="Override assumptions")
@@ -71,7 +71,7 @@ def update_assumptions_endpoint(payload: Assumptions) -> ResponseEnvelope:
     """Update the in-memory default assumptions."""
 
     updated = update_assumptions(payload)
-    return ResponseEnvelope(data=updated.dict())
+    return ResponseEnvelope(data=updated.model_dump())
 
 
 @router.post("/analyze/deal", response_model=ResponseEnvelope, summary="Analyze a full deal")
@@ -79,7 +79,7 @@ def analyze_deal_endpoint(payload: DealAnalysisRequest) -> ResponseEnvelope:
     """Run the rule-based deal analyzer combining cash flow and DSCR logic."""
 
     assumptions = payload.assumptions or get_assumptions()
-    analysis_payload = payload.dict()
+    analysis_payload = payload.model_dump()
     analysis_payload["assumptions"] = assumptions
     result = analyze_deal(analysis_payload)
 

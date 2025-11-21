@@ -48,7 +48,7 @@ export interface DSCRRequest {
 }
 
 export interface DSCRResponse {
-  dscr: number;
+  dscr: number | null; // null when there's no debt service (cash purchase)
   interpretation: string;
 }
 

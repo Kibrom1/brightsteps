@@ -50,3 +50,45 @@ def test_analyze_deal_endpoint():
     body = response.json()
     assert "overall_score" in body["data"]
     assert "cash_flow" in body["data"]
+
+
+def test_dscr_endpoint_zero_debt_service():
+    """Test DSCR endpoint with zero debt service (cash purchase)."""
+    response = client.post(
+        "/api/v1/calculate/dscr",
+        json={"noi_annual": 30000, "annual_debt_service": 0},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["data"]["dscr"] is None
+    assert "No debt" in body["data"]["interpretation"]
+
+
+def test_rent_estimate_invalid_property_type():
+    """Test that API rejects invalid property_type values."""
+    response = client.post(
+        "/api/v1/estimate/rent",
+        json={
+            "bedrooms": 3,
+            "bathrooms": 2,
+            "square_feet": 1500,
+            "zip_code": "90210",
+            "property_type": "invalid_type",
+        },
+    )
+    assert response.status_code == 422  # Validation error
+
+
+def test_deal_analysis_down_payment_validation():
+    """Test that API rejects down_payment >= purchase_price."""
+    response = client.post(
+        "/api/v1/analyze/deal",
+        json={
+            "purchase_price": 300000,
+            "down_payment": 300000,  # Equal to purchase price
+            "monthly_rent": 2500,
+            "interest_rate": 4.5,
+            "loan_term_years": 30,
+        },
+    )
+    assert response.status_code == 422  # Validation error
