@@ -9,6 +9,31 @@ You are helping me build **Phase 1 – Analytics Engine Core** for a real estate
 
 ---
 
+## Quick Start
+
+### 1. Setup
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Running Tests
+```bash
+pytest
+```
+
+### 3. Running the Server
+```bash
+uvicorn app.main:app --reload
+```
+# API Documentation is available at http://127.0.0.1:8000/docs when the server is running.
+
+---
+
 ## 1. Scope of Phase 1 (Analytics Engine Only)
 
 Build a Python/FastAPI service that exposes APIs to calculate:

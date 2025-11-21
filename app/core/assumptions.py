@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class Assumptions(BaseModel):
@@ -19,7 +19,7 @@ class Assumptions(BaseModel):
     appreciation_percent_annual: float = Field(3.0, ge=0, description="Annual property value appreciation assumption.")
     rent_growth_percent_annual: float = Field(2.5, ge=0, description="Annual rent growth assumption.")
 
-    @validator(
+    @field_validator(
         "vacancy_percent",
         "maintenance_percent",
         "management_percent",
@@ -28,6 +28,7 @@ class Assumptions(BaseModel):
         "appreciation_percent_annual",
         "rent_growth_percent_annual",
     )
+    @classmethod
     def _non_negative(cls, value: float) -> float:
         if value < 0:
             raise ValueError("Percent values must be non-negative.")

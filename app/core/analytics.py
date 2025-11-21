@@ -1,8 +1,7 @@
 """Pure calculation helpers for the analytics engine."""
 from __future__ import annotations
 
-from math import inf
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from app.core.assumptions import Assumptions
 
@@ -82,11 +81,15 @@ def calculate_cash_flow(data: Dict[str, float]) -> Dict[str, float]:
     }
 
 
-def calculate_dscr(noi_annual: float, annual_debt_service: float) -> Tuple[float, str]:
-    """Calculate DSCR and provide interpretation."""
+def calculate_dscr(noi_annual: float, annual_debt_service: float) -> Tuple[Optional[float], str]:
+    """Calculate DSCR and provide interpretation.
+    
+    Returns None for dscr_value when there's no debt service (cash purchase).
+    This is JSON-safe and can be handled by frontend clients.
+    """
 
     if annual_debt_service == 0:
-        return inf, "No debt service (cash purchase or paid-off loan)"
+        return None, "No debt service (cash purchase or paid-off loan)"
     dscr_value = noi_annual / annual_debt_service
     if dscr_value < 1.0:
         interpretation = "Negative cash flow / risk"
@@ -98,12 +101,19 @@ def calculate_dscr(noi_annual: float, annual_debt_service: float) -> Tuple[float
 
 
 def estimate_rent(request: Dict[str, float]) -> Tuple[float, Dict[str, float]]:
-    """Estimate rent using rule-based multipliers."""
+    """Estimate rent using rule-based multipliers.
+    
+    Note: zip_code is accepted in the request but not currently used in calculations.
+    It is reserved for future location-based rent adjustments.
+    """
 
     base = RENT_CONFIG["base_rent_per_sqft"] * request["square_feet"]
     bedroom_adj = RENT_CONFIG["bedroom_multiplier"] * request["bedrooms"]
     bathroom_adj = RENT_CONFIG["bathroom_multiplier"] * request["bathrooms"]
     property_adjustment = RENT_CONFIG["property_type_adjustments"].get(request["property_type"], 1.0)
+
+    # TODO: Implement zip_code-based adjustments in future enhancement
+    # zip_code = request.get("zip_code")  # Reserved for future use
 
     estimated = (base + bedroom_adj + bathroom_adj) * property_adjustment
     assumptions = {
@@ -111,6 +121,7 @@ def estimate_rent(request: Dict[str, float]) -> Tuple[float, Dict[str, float]]:
         "bedroom_multiplier": RENT_CONFIG["bedroom_multiplier"],
         "bathroom_multiplier": RENT_CONFIG["bathroom_multiplier"],
         "property_type_adjustment": property_adjustment,
+        "zip_code_used": False,  # Indicate that zip_code is not yet implemented
     }
     return estimated, assumptions
 
@@ -155,7 +166,11 @@ def analyze_deal(payload: Dict) -> Dict:
         score -= 10
         reasons.append("Negative monthly cash flow")
 
-    if dscr_value > 1.25:
+    if dscr_value is None:
+        # Cash purchase - no debt service, which is generally positive
+        score += 15
+        reasons.append("Cash purchase - no debt service required")
+    elif dscr_value > 1.25:
         score += 20
         reasons.append("DSCR above 1.25 indicates strong coverage")
     elif dscr_value > 1.1:

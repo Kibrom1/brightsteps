@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, model_validator
 
 from app.core.assumptions import Assumptions
 
@@ -58,7 +58,7 @@ class DSCRRequest(BaseModel):
 
 
 class DSCRResponse(BaseModel):
-    dscr: float
+    dscr: Optional[float]  # None when there's no debt service (cash purchase)
     interpretation: str
 
 
@@ -67,7 +67,7 @@ class RentEstimateRequest(BaseModel):
     bathrooms: float = Field(..., ge=0)
     square_feet: int = Field(..., gt=0)
     zip_code: str = Field(..., min_length=5, max_length=10)
-    property_type: str = Field(..., regex="^(single_family|multi_family|condo|townhouse)$")
+    property_type: str = Field(..., pattern="^(single_family|multi_family|condo|townhouse)$")
 
 
 class RentEstimateResponse(BaseModel):
@@ -84,12 +84,12 @@ class DealAnalysisRequest(BaseModel):
     hoa_monthly: float = Field(0.0, ge=0)
     assumptions: Optional[Assumptions] = None
 
-    @validator("down_payment")
-    def down_payment_not_exceed_purchase(cls, value: float, values: dict) -> float:
-        purchase_price = values.get("purchase_price")
-        if purchase_price is not None and value >= purchase_price:
+    @model_validator(mode="after")
+    def down_payment_not_exceed_purchase(self) -> "DealAnalysisRequest":
+        """Validate that down payment is less than purchase price."""
+        if self.down_payment >= self.purchase_price:
             raise ValueError("Down payment must be less than purchase price to leave room for financing.")
-        return value
+        return self
 
 
 class DealAnalysisResponse(BaseModel):
@@ -110,7 +110,6 @@ __all__ = [
     "DSCRResponse",
     "RentEstimateRequest",
     "RentEstimateResponse",
-    "Assumptions",
     "DealAnalysisRequest",
     "DealAnalysisResponse",
 ]
