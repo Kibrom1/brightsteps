@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_admin import router as admin_router
 from app.api.routes_analytics import router as analytics_router
@@ -15,6 +16,29 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version="2.0.0",
     description="Real Estate Investment Platform - Backend API with Analytics Engine",
+)
+
+# Configure CORS
+# Allow all origins in development for easier debugging
+# In production, specify exact origins
+cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",  # Vite default port
+    "http://127.0.0.1:5173",
+]
+
+# Add wildcard for development if needed
+if settings.DEBUG:
+    cors_origins.append("*")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include routers

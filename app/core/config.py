@@ -11,9 +11,11 @@ class Settings(BaseSettings):
     """Application settings."""
 
     # Database
+    # For development, you can use SQLite: "sqlite:///./brightsteps.db"
+    # For production, use PostgreSQL: "postgresql://user:pass@localhost:5432/brightsteps"
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost:5432/brightsteps",
+        "sqlite:///./brightsteps.db",  # Using SQLite for easy development
     )
 
     # JWT
