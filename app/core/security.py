@@ -4,30 +4,41 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Optional
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode('utf-8'),
+            hashed_password.encode('utf-8')
+        )
+    except Exception:
+        return False
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password."""
-    return pwd_context.hash(password)
+    """Hash a password using bcrypt."""
+    # Generate salt and hash password
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token.
     
     The data dict should contain 'sub' (subject) which is typically the user ID.
+    Note: JWT 'sub' claim must be a string, so we convert it if needed.
     """
     to_encode = data.copy()
+    # Ensure 'sub' is a string (JWT spec requires it)
+    if 'sub' in to_encode and not isinstance(to_encode['sub'], str):
+        to_encode['sub'] = str(to_encode['sub'])
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -42,6 +53,9 @@ def decode_access_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         return payload
-    except JWTError:
+    except JWTError as e:
+        # Log the error for debugging
+        if settings.DEBUG:
+            print(f"JWT decode error: {e}")
         return None
 
