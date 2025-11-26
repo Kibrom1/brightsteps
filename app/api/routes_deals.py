@@ -271,3 +271,62 @@ def delete_deal(
     db.delete(deal)
     db.commit()
 
+
+@router.get("/{deal_id}/comps", response_model=List[DealResponse])
+def get_deal_comps(
+    deal_id: int,
+    limit: int = Query(5, ge=1, le=20),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> List[DealResponse]:
+    """Get comparable deals based on property criteria."""
+    # 1. Fetch the source deal
+    deal = db.query(Deal).filter(Deal.id == deal_id).first()
+    if not deal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Deal not found",
+        )
+
+    # Check ownership/access
+    if current_user.role != UserRole.ADMIN and deal.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions",
+        )
+
+    # 2. Define base query for potential comps
+    # Restrict to user's own deals unless admin (simplifying assumption for this MVP)
+    query = db.query(Deal).filter(Deal.id != deal_id)
+    if current_user.role != UserRole.ADMIN:
+        query = query.filter(Deal.user_id == current_user.id)
+
+    # 3. Apply comparison logic
+    # If deal has a property, try to match on property characteristics
+    if deal.property_id:
+        # Join with Property to access its fields
+        target_property = db.query(Property).filter(Property.id == deal.property_id).first()
+        
+        if target_property:
+            # We want deals that refer to properties of the same type or same city
+            # Explicitly join Deal -> Property using the relationship
+            query = query.join(Property, Deal.property_id == Property.id).filter(
+                (Property.property_type == target_property.property_type) |
+                (Property.city == target_property.city) |
+                (Property.zip_code == target_property.zip_code)
+            )
+        else:
+            # Orphaned property_id: property doesn't exist, fall back to price proximity
+            min_price = deal.purchase_price * 0.8
+            max_price = deal.purchase_price * 1.2
+            query = query.filter(Deal.purchase_price >= min_price, Deal.purchase_price <= max_price)
+    else:
+        # Fallback: price proximity (+/- 20%)
+        min_price = deal.purchase_price * 0.8
+        max_price = deal.purchase_price * 1.2
+        query = query.filter(Deal.purchase_price >= min_price, Deal.purchase_price <= max_price)
+
+    # 4. Execute and return
+    comps = query.limit(limit).all()
+    return [DealResponse.model_validate(comp) for comp in comps]
+

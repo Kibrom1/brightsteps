@@ -11,6 +11,7 @@ from app.api.routes_deals import router as deals_router
 from app.api.routes_properties import router as properties_router
 from app.api.routes_users import router as users_router
 from app.core.config import settings
+from app.db.base import init_db
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -18,14 +19,18 @@ app = FastAPI(
     description="Real Estate Investment Platform - Backend API with Analytics Engine",
 )
 
+@app.on_event("startup")
+def startup_event():
+    init_db()
+
 # Configure CORS
 # Allow all origins in development for easier debugging
 # In production, specify exact origins
 cors_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",  # Vite default port
+    "http://localhost:5173",  # Vite default port (primary)
     "http://127.0.0.1:5173",
+    "http://localhost:3000",  # Keep for compatibility
+    "http://127.0.0.1:3000",
 ]
 
 # Add wildcard for development if needed

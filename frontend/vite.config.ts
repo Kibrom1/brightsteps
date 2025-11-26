@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite'
+// Vite config - using dynamic import to avoid requiring vite at config load time
+import type { UserConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+const config: UserConfig = {
   plugins: [react()],
   server: {
     port: 3000,
@@ -13,5 +14,7 @@ export default defineConfig({
       },
     },
   },
-})
+}
+
+export default config
 

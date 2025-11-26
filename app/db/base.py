@@ -29,5 +29,9 @@ def get_db():
 
 def init_db():
     """Initialize database tables."""
+    # Import models to ensure they are registered with Base.metadata
+    import app.models.user
+    import app.models.property
+    import app.models.deal
+    
     Base.metadata.create_all(bind=engine)
-
