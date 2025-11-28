@@ -156,3 +156,73 @@ export interface DealFormData {
   notes?: string;
 }
 
+// Phase 4: Notification types
+export interface Notification {
+  id: number;
+  type: 'deal_created' | 'deal_updated' | 'deal_deleted' | 'system';
+  message: string;
+  created_at: string;
+  read: boolean;
+  deal_id?: number;
+}
+
+// Phase 4: User Preferences
+export interface UserPreferences {
+  notification_email_enabled: boolean;
+  notification_summary_enabled: boolean;
+  default_vacancy_percent?: number;
+  default_maintenance_percent?: number;
+  default_management_percent?: number;
+}
+
+export interface UserWithPreferences extends User {
+  preferences?: UserPreferences;
+}
+
+// Phase 4: Deal Filters
+export interface DealFilters {
+  search?: string;
+  property_type?: PropertyType[];
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  min_cap_rate?: number;
+  min_monthly_cash_flow?: number;
+  min_dscr?: number;
+}
+
+// Phase 4: Chart Data Types
+export interface ChartDataPoint {
+  name: string;
+  value: number;
+  [key: string]: string | number;
+}
+
+export interface CapRateDataPoint {
+  dealId: number;
+  dealName: string;
+  capRate: number;
+}
+
+export interface CashFlowDataPoint {
+  dealId: number;
+  dealName: string;
+  monthlyCashFlow: number;
+  annualCashFlow: number;
+}
+
+export interface PortfolioBreakdownData {
+  category: string;
+  count: number;
+  totalValue: number;
+  percentage: number;
+}
+
+export interface CashFlowProjectionData {
+  year: number;
+  month: number;
+  cashFlow: number;
+  rent: number;
+  expenses: number;
+}
+

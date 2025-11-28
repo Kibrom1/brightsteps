@@ -34,5 +34,13 @@ export const dealsApi = {
     const client = getApiClient();
     return client.post<Deal>(`/api/v1/deals/${id}/recalculate`);
   },
+
+  async getComparableProperties(id: number): Promise<Deal[]> {
+    const client = getApiClient();
+    return client.get<Deal[]>(`/api/v1/deals/${id}/comps`);
+  },
+
+  // Note: CSV export is handled client-side in the component
+  // For server-side export, use: GET /api/v1/deals/export.csv
 };
 

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_current_active_user, require_admin
 from app.db.base import get_db
 from app.models.user import User
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, UserUpdate
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -19,6 +19,44 @@ def get_current_user_profile(
     current_user: User = Depends(get_current_active_user),
 ) -> UserResponse:
     """Get current user's profile."""
+    return UserResponse.model_validate(current_user)
+
+
+@router.put("/me", response_model=UserResponse)
+def update_current_user_profile(
+    user_data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> UserResponse:
+    """Update current user's profile and preferences."""
+    # Update allowed fields
+    update_data = user_data.model_dump(exclude_unset=True)
+    
+    # Don't allow role changes via this endpoint (use admin endpoint)
+    if "role" in update_data:
+        del update_data["role"]
+    
+    # Don't allow email changes via this endpoint (separate flow)
+    if "email" in update_data:
+        del update_data["email"]
+    
+    # Handle preferences separately (convert Pydantic model to dict for JSON storage)
+    if "preferences" in update_data:
+        preferences_dict = update_data.pop("preferences")
+        if preferences_dict is not None:
+            # Convert Pydantic model to dict
+            if hasattr(preferences_dict, "model_dump"):
+                preferences_dict = preferences_dict.model_dump()
+            current_user.preferences = preferences_dict
+        else:
+            current_user.preferences = None
+    
+    # Update other fields
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    
+    db.commit()
+    db.refresh(current_user)
     return UserResponse.model_validate(current_user)
 
 
