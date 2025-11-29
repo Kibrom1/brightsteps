@@ -33,5 +33,6 @@ def init_db():
     import app.models.user
     import app.models.property
     import app.models.deal
+    import app.models.lead
     
     Base.metadata.create_all(bind=engine)

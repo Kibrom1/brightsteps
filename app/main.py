@@ -5,9 +5,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_admin import router as admin_router
+from app.api.routes_ai import router as ai_router
 from app.api.routes_analytics import router as analytics_router
 from app.api.routes_auth import router as auth_router
 from app.api.routes_deals import router as deals_router
+from app.api.routes_leads import router as leads_router
 from app.api.routes_properties import router as properties_router
 from app.api.routes_users import router as users_router
 from app.core.config import settings
@@ -53,6 +55,8 @@ app.include_router(properties_router)
 app.include_router(deals_router)
 app.include_router(admin_router)
 app.include_router(analytics_router)  # Phase 1 analytics endpoints (still available)
+app.include_router(leads_router)
+app.include_router(ai_router)
 
 
 @app.get("/health", tags=["health"])

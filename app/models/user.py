@@ -35,4 +35,5 @@ class User(Base):
     # Relationships
     properties = relationship("Property", back_populates="owner", cascade="all, delete-orphan")
     deals = relationship("Deal", back_populates="user", cascade="all, delete-orphan")
+    leads = relationship("Lead", back_populates="owner", cascade="all, delete-orphan")
 

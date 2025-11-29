@@ -226,3 +226,76 @@ export interface CashFlowProjectionData {
   expenses: number;
 }
 
+// Phase 6: CRM / Leads
+export enum LeadStatus {
+  NEW = 'new',
+  CONTACTED = 'contacted',
+  QUALIFIED = 'qualified',
+  LOST = 'lost',
+  CLOSED = 'closed',
+}
+
+export enum ActivityType {
+  EMAIL = 'email',
+  CALL = 'call',
+  MEETING = 'meeting',
+  NOTE = 'note',
+  OTHER = 'other',
+}
+
+export interface LeadActivity {
+  id: number;
+  lead_id: number;
+  activity_type: ActivityType;
+  summary: string;
+  notes?: string;
+  completed_at?: string;
+  created_at: string;
+}
+
+export interface Lead {
+  id: number;
+  owner_id: number;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  status: LeadStatus;
+  source?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  activities: LeadActivity[];
+}
+
+export interface LeadCreateData {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  status?: LeadStatus;
+  source?: string;
+  notes?: string;
+}
+
+export interface LeadActivityCreateData {
+  activity_type: ActivityType;
+  summary: string;
+  notes?: string;
+  completed_at?: string;
+}
+
+// Phase 6: AI
+export interface PropertyDescriptionRequest {
+  address?: string;
+  property_type: PropertyType;
+  bedrooms: number;
+  bathrooms: number;
+  square_feet: number;
+  features: string[];
+  tone: 'professional' | 'luxury' | 'cozy' | 'urgent';
+}
+
+export interface PropertyDescriptionResponse {
+  description: string;
+}
