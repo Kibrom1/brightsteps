@@ -34,5 +34,7 @@ def init_db():
     import app.models.property
     import app.models.deal
     import app.models.lead
+    import app.models.admin
+    import app.models.billing
     
     Base.metadata.create_all(bind=engine)

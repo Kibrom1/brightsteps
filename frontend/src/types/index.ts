@@ -299,3 +299,77 @@ export interface PropertyDescriptionRequest {
 export interface PropertyDescriptionResponse {
   description: string;
 }
+
+// Phase 7: Admin & Enterprise
+export interface SystemStats {
+  total_users: number;
+  total_properties: number;
+  total_deals: number;
+  total_leads: number;
+  active_subscriptions: number;
+}
+
+export interface AuditLog {
+  id: number;
+  user_id?: number;
+  action: string;
+  resource_type?: string;
+  resource_id?: string;
+  details?: Record<string, any>;
+  ip_address?: string;
+  created_at: string;
+}
+
+export interface FeatureFlag {
+  id: number;
+  name: string;
+  description?: string;
+  is_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FeatureFlagCreate {
+  name: string;
+  description?: string;
+  is_enabled?: boolean;
+}
+
+export interface FeatureFlagUpdate {
+  description?: string;
+  is_enabled?: boolean;
+}
+
+export enum PlanInterval {
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly',
+}
+
+export interface Plan {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  interval: PlanInterval;
+  features?: string[];
+  stripe_price_id?: string;
+  created_at: string;
+}
+
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  CANCELED = 'canceled',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing',
+}
+
+export interface Subscription {
+  id: number;
+  user_id: number;
+  plan_id: number;
+  status: SubscriptionStatus;
+  current_period_end?: string;
+  plan: Plan;
+  created_at: string;
+  updated_at: string;
+}
