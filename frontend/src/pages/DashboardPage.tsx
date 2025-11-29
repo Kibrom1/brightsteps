@@ -103,23 +103,6 @@ export function DashboardPage() {
                 A calm overview of performance, cash flow, and risk across your holdings.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm text-slate-600">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 border border-slate-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-                <span className="font-semibold text-slate-900">{totalDeals}</span>
-                <span className="text-slate-500">properties tracked</span>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 border border-slate-200">
-                <span className="h-2 w-2 rounded-full bg-primary-600" aria-hidden />
-                <span className="font-semibold text-slate-900">{formatCurrency(totalMonthlyCashFlow)}</span>
-                <span className="text-slate-500">monthly cash flow</span>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 border border-slate-200">
-                <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden />
-                <span className="font-semibold text-slate-900">{formatPercent(avgCapRate)}</span>
-                <span className="text-slate-500">avg. cap rate</span>
-              </div>
-            </div>
           </div>
           <div className="flex items-center gap-3 self-start md:self-center">
             <Link
