@@ -36,4 +36,5 @@ class User(Base):
     properties = relationship("Property", back_populates="owner", cascade="all, delete-orphan")
     deals = relationship("Deal", back_populates="user", cascade="all, delete-orphan")
     leads = relationship("Lead", back_populates="owner", cascade="all, delete-orphan")
+    subscription = relationship("Subscription", back_populates="user", uselist=False, cascade="all, delete-orphan")
 

@@ -16,6 +16,14 @@ import { ProfilePage } from './pages/ProfilePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import LeadsPage from './pages/LeadsPage';
 import AIToolsPage from './pages/AIToolsPage';
+import BillingPage from './pages/BillingPage';
+
+// Admin Pages
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import FeatureFlags from './pages/admin/FeatureFlags';
+import AuditLogs from './pages/admin/AuditLogs';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -82,6 +90,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+             <Route
+              path="/billing"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <BillingPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/deals/new"
               element={
@@ -123,6 +141,21 @@ function App() {
               }
             />
 
+            {/* Admin Routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="feature-flags" element={<FeatureFlags />} />
+              <Route path="audit-logs" element={<AuditLogs />} />
+            </Route>
+
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -143,4 +176,3 @@ function App() {
 }
 
 export default App;
-
