@@ -39,6 +39,7 @@ cors_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:3000",  # Keep for compatibility
     "http://127.0.0.1:3000",
+    "http://10.0.0.184:3000", # Network address
 ]
 
 # Add wildcard for development if needed

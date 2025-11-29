@@ -6,7 +6,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_register_user_success():
+def test_register_user_success(client):
     """Test successful user registration."""
     response = client.post(
         "/api/v1/auth/register",
@@ -25,7 +25,7 @@ def test_register_user_success():
     assert "password" not in data
 
 
-def test_register_duplicate_email():
+def test_register_duplicate_email(client):
     """Test registration with duplicate email."""
     # Register first user
     client.post(
@@ -50,7 +50,7 @@ def test_register_duplicate_email():
     assert "already registered" in response.json()["detail"].lower()
 
 
-def test_login_success():
+def test_login_success(client):
     """Test successful login."""
     # Register user first
     client.post(
@@ -76,7 +76,7 @@ def test_login_success():
     assert data["token_type"] == "bearer"
 
 
-def test_login_incorrect_password():
+def test_login_incorrect_password(client):
     """Test login with incorrect password."""
     # Register user first
     client.post(
@@ -100,7 +100,7 @@ def test_login_incorrect_password():
     assert "incorrect" in response.json()["detail"].lower()
 
 
-def test_login_nonexistent_user():
+def test_login_nonexistent_user(client):
     """Test login with non-existent user."""
     response = client.post(
         "/api/v1/auth/login",
@@ -112,7 +112,7 @@ def test_login_nonexistent_user():
     assert response.status_code == 401
 
 
-def test_get_current_user_with_token():
+def test_get_current_user_with_token(client):
     """Test getting current user profile with valid token."""
     # Register and login
     client.post(
@@ -143,8 +143,8 @@ def test_get_current_user_with_token():
     assert data["email"] == "profile@example.com"
 
 
-def test_get_current_user_without_token():
+def test_get_current_user_without_token(client):
     """Test getting current user without token."""
     response = client.get("/api/v1/users/me")
-    assert response.status_code == 403  # Forbidden - no token
+    assert response.status_code == 401  # Unauthorized - no token
 

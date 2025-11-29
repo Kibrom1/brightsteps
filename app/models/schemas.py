@@ -66,7 +66,7 @@ class RentEstimateRequest(BaseModel):
     bedrooms: int = Field(..., ge=0)
     bathrooms: float = Field(..., ge=0)
     square_feet: int = Field(..., gt=0)
-    zip_code: str = Field(..., min_length=5, max_length=10)
+    zip_code: Optional[str] = Field(None, min_length=5, max_length=10)
     property_type: str = Field(..., pattern="^(single_family|multi_family|condo|townhouse)$")
 
 

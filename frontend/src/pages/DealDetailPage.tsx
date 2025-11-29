@@ -43,17 +43,15 @@ export function DealDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-lg text-gray-600">Loading deal...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   if (error || !deal) {
     return (
-      <div className="rounded-md bg-red-50 p-4">
-        <div className="text-sm text-red-800">
+      <div className="rounded-xl bg-red-50 p-6 border border-red-100 text-red-700">
           {error instanceof Error ? error.message : 'Deal not found'}
-        </div>
       </div>
     );
   }
@@ -65,216 +63,209 @@ export function DealDetailPage() {
   const assumptions = deal.snapshot_of_assumptions;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Deal Details</h1>
-        <div className="flex space-x-4">
+    <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6">
+        <div>
+            <h1 className="text-3xl font-bold text-slate-900">
+                {deal.property?.address_line1 || 'Deal Details'}
+            </h1>
+            {deal.property && (
+                <p className="text-slate-500 mt-1">
+                    {deal.property.city}, {deal.property.state} • {deal.property.zip_code}
+                </p>
+            )}
+        </div>
+        <div className="flex space-x-3 mt-4 sm:mt-0">
           <button
             onClick={() => recalculateMutation.mutate()}
             disabled={recalculateMutation.isPending}
-            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="btn-secondary"
           >
             {recalculateMutation.isPending ? 'Recalculating...' : 'Recalculate Analytics'}
           </button>
           <Link
             to={`/deals/${deal.id}/edit`}
-            className="px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700"
+            className="btn-primary"
           >
             Edit Deal
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Deal Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Deal Information</h2>
-            {deal.property_id && (
-               <div className="mb-6">
-                 <h3 className="text-sm font-medium text-gray-500 mb-2">Property Images</h3>
-                 <PropertyImageUpload propertyId={deal.property_id} />
-                 {/* Display images if available - would need to fetch property details including images */}
-               </div>
-            )}
-            <dl className="space-y-4">
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Purchase Price</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatCurrency(deal.purchase_price)}</dd>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Property & Info */}
+        <div className="lg:col-span-2 space-y-8">
+             {/* Images Section */}
+             <div className="card p-6">
+                 <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-slate-900">Property Images</h2>
+                 </div>
+                 {deal.property_id ? (
+                     <PropertyImageUpload propertyId={deal.property_id} />
+                 ) : (
+                     <div className="bg-slate-50 rounded-lg p-8 text-center text-slate-500">
+                         Link a property to this deal to manage images.
+                     </div>
+                 )}
+             </div>
+
+            {/* Deal Information */}
+            <div className="card p-6">
+                <h2 className="text-lg font-semibold text-slate-900 mb-6">Deal Financials</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Purchase Price</dt>
+                        <dd className="mt-1 text-xl font-medium text-slate-900">{formatCurrency(deal.purchase_price)}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Down Payment</dt>
+                        <dd className="mt-1 text-xl font-medium text-slate-900">{formatCurrency(deal.down_payment)}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Interest Rate</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{formatPercent(deal.interest_rate)}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Loan Term</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{deal.loan_term_years} years</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Monthly Rent</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{formatCurrency(deal.monthly_rent)}</dd>
+                    </div>
+                     <div>
+                        <dt className="text-sm font-medium text-slate-500">HOA (Monthly)</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{deal.hoa_monthly ? formatCurrency(deal.hoa_monthly) : '-'}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Property Tax (Annual)</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{deal.property_tax_annual ? formatCurrency(deal.property_tax_annual) : '-'}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-sm font-medium text-slate-500">Insurance (Annual)</dt>
+                        <dd className="mt-1 text-lg text-slate-900">{deal.insurance_annual ? formatCurrency(deal.insurance_annual) : '-'}</dd>
+                    </div>
+                </div>
+                {deal.notes && (
+                    <div className="mt-6 pt-6 border-t border-slate-100">
+                        <dt className="text-sm font-medium text-slate-500 mb-2">Notes</dt>
+                        <dd className="text-sm text-slate-700 bg-slate-50 p-4 rounded-lg">{deal.notes}</dd>
+                    </div>
+                )}
             </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Down Payment</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatCurrency(deal.down_payment)}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Interest Rate</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatPercent(deal.interest_rate)}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Loan Term</dt>
-              <dd className="mt-1 text-sm text-gray-900">{deal.loan_term_years} years</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Monthly Rent</dt>
-              <dd className="mt-1 text-sm text-gray-900">{formatCurrency(deal.monthly_rent)}</dd>
-            </div>
-            {deal.property_tax_annual && (
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Property Tax (Annual)</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {formatCurrency(deal.property_tax_annual)}
-                </dd>
-              </div>
+            
+            {/* Assumptions */}
+            {assumptions && (
+                <div className="card p-6">
+                    <h2 className="text-lg font-semibold text-slate-900 mb-4">Assumptions Used</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Vacancy</dt>
+                            <dd className="text-sm font-medium text-slate-900 mt-1">{formatPercent(assumptions.vacancy_percent)}</dd>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Maintenance</dt>
+                            <dd className="text-sm font-medium text-slate-900 mt-1">{formatPercent(assumptions.maintenance_percent)}</dd>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Management</dt>
+                            <dd className="text-sm font-medium text-slate-900 mt-1">{formatPercent(assumptions.management_percent)}</dd>
+                        </div>
+                    </div>
+                </div>
             )}
-            {deal.insurance_annual && (
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Insurance (Annual)</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {formatCurrency(deal.insurance_annual)}
-                </dd>
-              </div>
-            )}
-            {deal.hoa_monthly && (
-              <div>
-                <dt className="text-sm font-medium text-gray-500">HOA (Monthly)</dt>
-                <dd className="mt-1 text-sm text-gray-900">{formatCurrency(deal.hoa_monthly)}</dd>
-              </div>
-            )}
-            {deal.notes && (
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Notes</dt>
-                <dd className="mt-1 text-sm text-gray-900">{deal.notes}</dd>
-              </div>
-            )}
-          </dl>
         </div>
 
-        {/* Analytics Summary */}
-        {analytics && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Analytics Summary</h2>
-            {cashFlow && (
-              <div className="space-y-4 mb-6">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Monthly Cash Flow</dt>
-                  <dd
-                    className={`mt-1 text-2xl font-bold ${
-                      cashFlow.monthly_cash_flow >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {formatCurrency(cashFlow.monthly_cash_flow)}
-                  </dd>
+        {/* Right Column: Analytics */}
+        <div className="lg:col-span-1 space-y-8">
+             {analytics && cashFlow ? (
+                <div className="card bg-slate-900 text-white border-slate-800">
+                    <div className="p-6 border-b border-slate-700">
+                         <h2 className="text-lg font-semibold text-white">Performance Summary</h2>
+                    </div>
+                    <div className="p-6 space-y-6">
+                        <div className="text-center">
+                            <p className="text-slate-400 text-sm uppercase tracking-wider mb-1">Projected Monthly Cash Flow</p>
+                            <p className={`text-4xl font-bold ${cashFlow.monthly_cash_flow >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {formatCurrency(cashFlow.monthly_cash_flow)}
+                            </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800">
+                             <div>
+                                <p className="text-slate-400 text-xs">Cash-on-Cash</p>
+                                <p className="text-xl font-semibold text-white mt-1">{formatPercent(cashFlow.cash_on_cash_return)}</p>
+                            </div>
+                            <div>
+                                <p className="text-slate-400 text-xs">Annual NOI</p>
+                                <p className="text-xl font-semibold text-white mt-1">{formatCurrency(cashFlow.noi_annual)}</p>
+                            </div>
+                        </div>
+                        
+                        {dscr && (
+                             <div className="pt-4 border-t border-slate-800">
+                                <div className="flex justify-between items-end">
+                                    <div>
+                                        <p className="text-slate-400 text-xs">DSCR</p>
+                                        <p className="text-xl font-semibold text-white mt-1">
+                                            {dscr.dscr !== null && dscr.dscr !== undefined ? dscr.dscr.toFixed(2) : 'N/A'}
+                                        </p>
+                                    </div>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                        dscr.dscr && dscr.dscr >= 1.2 ? 'bg-emerald-900/50 text-emerald-400' : 'bg-yellow-900/50 text-yellow-400'
+                                    }`}>
+                                        {dscr.interpretation}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Annual Cash Flow</dt>
-                  <dd className="mt-1 text-lg text-gray-900">
-                    {formatCurrency(cashFlow.annual_cash_flow)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Cash-on-Cash Return</dt>
-                  <dd className="mt-1 text-lg text-gray-900">
-                    {formatPercent(cashFlow.cash_on_cash_return)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">NOI (Annual)</dt>
-                  <dd className="mt-1 text-lg text-gray-900">
-                    {formatCurrency(cashFlow.noi_annual)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Monthly Debt Service</dt>
-                  <dd className="mt-1 text-lg text-gray-900">
-                    {formatCurrency(cashFlow.monthly_debt_service)}
-                  </dd>
-                </div>
-              </div>
-            )}
-
-            {dscr && (
-              <div className="mb-6">
-                <dt className="text-sm font-medium text-gray-500">DSCR</dt>
-                <dd className="mt-1 text-lg text-gray-900">
-                  {dscr.dscr !== null && dscr.dscr !== undefined
-                    ? dscr.dscr.toFixed(2)
-                    : 'N/A'}{' '}
-                  <span className="text-sm text-gray-500">({dscr.interpretation})</span>
-                </dd>
-              </div>
+            ) : (
+                <div className="card p-6 text-center text-slate-500">No analytics available</div>
             )}
 
             {analysis && (
-              <div className="border-t pt-4">
-                <dt className="text-sm font-medium text-gray-500 mb-2">Deal Analysis</dt>
-                <dd className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Overall Score</span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        analysis.label === 'Strong Deal'
-                          ? 'bg-green-100 text-green-800'
-                          : analysis.label === 'Neutral'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {analysis.overall_score}/100 - {analysis.label}
-                    </span>
-                  </div>
-                  {analysis.reasons.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {analysis.reasons.map((reason, idx) => (
-                        <li key={idx} className="text-sm text-gray-600">
-                          • {reason}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </dd>
-              </div>
+                <div className="card p-6">
+                    <h2 className="text-lg font-semibold text-slate-900 mb-4">Investment Grade</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="text-slate-600">Overall Score</span>
+                        <span className={`text-2xl font-bold ${
+                             analysis.overall_score >= 80 ? 'text-emerald-600' :
+                             analysis.overall_score >= 60 ? 'text-yellow-600' :
+                             'text-red-600'
+                        }`}>
+                            {analysis.overall_score}/100
+                        </span>
+                    </div>
+                    
+                    <div className={`p-3 rounded-lg mb-4 text-center font-medium ${
+                         analysis.label === 'Strong Deal' ? 'bg-emerald-50 text-emerald-700' :
+                         analysis.label === 'Neutral' ? 'bg-yellow-50 text-yellow-700' :
+                         'bg-red-50 text-red-700'
+                    }`}>
+                        {analysis.label}
+                    </div>
+
+                    {analysis.reasons.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Analysis Notes</p>
+                            <ul className="space-y-2">
+                                {analysis.reasons.map((reason, idx) => (
+                                    <li key={idx} className="flex items-start text-sm text-slate-600">
+                                        <svg className="h-5 w-5 text-primary-400 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {reason}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
             )}
-          </div>
-        )}
-
-        {/* Assumptions */}
-        {assumptions && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Assumptions Used</h2>
-            <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Vacancy</dt>
-                <dd className="text-gray-900">{formatPercent(assumptions.vacancy_percent)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Maintenance</dt>
-                <dd className="text-gray-900">{formatPercent(assumptions.maintenance_percent)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Management</dt>
-                <dd className="text-gray-900">{formatPercent(assumptions.management_percent)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Property Tax</dt>
-                <dd className="text-gray-900">{formatPercent(assumptions.property_tax_percent)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Insurance</dt>
-                <dd className="text-gray-900">{formatPercent(assumptions.insurance_percent)}</dd>
-              </div>
-            </dl>
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          Back to Dashboard
-        </button>
+        </div>
       </div>
     </div>
   );
 }
-

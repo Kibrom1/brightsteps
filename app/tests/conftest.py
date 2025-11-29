@@ -50,8 +50,7 @@ def normal_user(db) -> User:
         email="test@example.com",
         hashed_password="hashedpassword",
         full_name="Test User",
-        role=UserRole.USER,
-        is_active=True,
+        role=UserRole.INVESTOR,
     )
     db.add(user)
     db.commit()
