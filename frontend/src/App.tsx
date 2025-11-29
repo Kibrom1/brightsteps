@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DealCreatePage } from './pages/DealCreatePage';
 import { DealDetailPage } from './pages/DealDetailPage';
@@ -55,6 +56,14 @@ function App() {
               element={
                 <Layout>
                   <RegisterPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/verify-email"
+              element={
+                <Layout>
+                  <VerifyEmailPage />
                 </Layout>
               }
             />

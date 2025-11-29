@@ -4,6 +4,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dealsApi } from '../lib/api/deals';
+import { PropertyImageUpload } from '../components/PropertyImageUpload';
 import type { Deal } from '../types';
 
 function formatCurrency(amount: number): string {
@@ -86,9 +87,16 @@ export function DealDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Deal Information */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Deal Information</h2>
-          <dl className="space-y-4">
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Deal Information</h2>
+            {deal.property_id && (
+               <div className="mb-6">
+                 <h3 className="text-sm font-medium text-gray-500 mb-2">Property Images</h3>
+                 <PropertyImageUpload propertyId={deal.property_id} />
+                 {/* Display images if available - would need to fetch property details including images */}
+               </div>
+            )}
+            <dl className="space-y-4">
             <div>
               <dt className="text-sm font-medium text-gray-500">Purchase Price</dt>
               <dd className="mt-1 text-sm text-gray-900">{formatCurrency(deal.purchase_price)}</dd>

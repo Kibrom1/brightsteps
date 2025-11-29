@@ -17,11 +17,14 @@ export default function BillingPage() {
   });
 
   const subscribeMutation = useMutation({
-    mutationFn: (planId: number) => billingApi.subscribe({ plan_id: planId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      alert('Successfully subscribed!');
+    mutationFn: (planId: number) => billingApi.createCheckoutSession({ plan_id: planId }),
+    onSuccess: (data) => {
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
     },
+    onError: (error) => {
+      alert('Failed to start subscription: ' + error);
+    }
   });
 
   const handleSubscribe = (planId: number) => {

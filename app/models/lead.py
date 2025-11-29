@@ -1,4 +1,4 @@
-"""Lead database models for CRM features."""
+"""Lead database model."""
 from __future__ import annotations
 
 import enum
@@ -22,7 +22,7 @@ class LeadStatus(str, enum.Enum):
 
 class ActivityType(str, enum.Enum):
     """Activity type enumeration."""
-
+    
     EMAIL = "email"
     CALL = "call"
     MEETING = "meeting"
@@ -36,14 +36,18 @@ class Lead(Base):
     __tablename__ = "leads"
 
     id = Column(Integer, primary_key=True, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    email = Column(String, index=True, nullable=True)
+    email = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    
     status = Column(Enum(LeadStatus), default=LeadStatus.NEW, nullable=False)
-    source = Column(String, nullable=True)
+    source = Column(String, nullable=True) # e.g. "website", "referral"
     notes = Column(Text, nullable=True)
+    score = Column(Integer, default=0) # 0-100
+    
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -53,19 +57,19 @@ class Lead(Base):
 
 
 class LeadActivity(Base):
-    """Lead activity model for tracking interactions."""
+    """Lead activity model."""
 
     __tablename__ = "lead_activities"
 
     id = Column(Integer, primary_key=True, index=True)
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False, index=True)
-    activity_type = Column(Enum(ActivityType), nullable=False)
+    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    
+    activity_type = Column(Enum(ActivityType), default=ActivityType.NOTE, nullable=False)
     summary = Column(String, nullable=False)
     notes = Column(Text, nullable=True)
-    completed_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships
     lead = relationship("Lead", back_populates="activities")
-
-

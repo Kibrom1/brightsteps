@@ -37,4 +37,7 @@ def init_db():
     import app.models.admin
     import app.models.billing
     
+    # Ensure new models are imported
+    import app.models.property # Updated
+    
     Base.metadata.create_all(bind=engine)

@@ -1,19 +1,25 @@
 """Property management routes."""
 from __future__ import annotations
 
+import os
+import shutil
 from typing import List
+from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_active_user, require_admin
 from app.db.base import get_db
-from app.models.property import Property
+from app.models.property import Property, PropertyImage
 from app.models.user import User, UserRole
 from app.schemas.property import PropertyCreate, PropertyResponse, PropertyUpdate
 
 router = APIRouter(prefix="/api/v1/properties", tags=["properties"])
 
+# Configure upload directory
+UPLOAD_DIR = Path("static/uploads/properties")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.post("", response_model=PropertyResponse, status_code=status.HTTP_201_CREATED)
 def create_property(
@@ -127,3 +133,49 @@ def delete_property(
     db.delete(property_obj)
     db.commit()
 
+@router.post("/{property_id}/images", status_code=status.HTTP_201_CREATED)
+def upload_property_image(
+    property_id: int,
+    file: UploadFile = File(...),
+    is_primary: bool = Query(False),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Upload an image for a property."""
+    property_obj = db.query(Property).filter(Property.id == property_id).first()
+    if not property_obj:
+        raise HTTPException(status_code=404, detail="Property not found")
+        
+    # Check ownership
+    if current_user.role != UserRole.ADMIN and property_obj.owner_user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    # Validate file type
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    # Generate filename
+    file_ext = os.path.splitext(file.filename)[1]
+    filename = f"prop_{property_id}_{os.urandom(4).hex()}{file_ext}"
+    file_path = UPLOAD_DIR / filename
+    
+    # Save file
+    try:
+        with file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not save file: {e}")
+
+    # Create URL (assuming served from /static)
+    image_url = f"/static/uploads/properties/{filename}"
+    
+    # Save to DB
+    image = PropertyImage(
+        property_id=property_id,
+        url=image_url,
+        is_primary=is_primary
+    )
+    db.add(image)
+    db.commit()
+    
+    return {"url": image_url, "id": image.id}

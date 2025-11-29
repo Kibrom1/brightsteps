@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.analytics import analyze_deal, calculate_cash_flow, calculate_dscr
@@ -14,6 +14,7 @@ from app.models.deal import Deal
 from app.models.property import Property
 from app.models.user import User, UserRole
 from app.schemas.deal import DealCreate, DealResponse, DealUpdate
+from app.core.audit import log_action
 
 router = APIRouter(prefix="/api/v1/deals", tags=["deals"])
 
@@ -78,6 +79,7 @@ def _calculate_deal_analytics(deal: Deal, assumptions: Assumptions) -> Dict[str,
 @router.post("", response_model=DealResponse, status_code=status.HTTP_201_CREATED)
 def create_deal(
     deal_data: DealCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> DealResponse:
@@ -114,6 +116,17 @@ def create_deal(
     db.add(db_deal)
     db.commit()
     db.refresh(db_deal)
+    
+    log_action(
+        db=db,
+        action="create_deal",
+        user_id=current_user.id,
+        resource_type="deal",
+        resource_id=str(db_deal.id),
+        details={"purchase_price": db_deal.purchase_price, "property_id": db_deal.property_id},
+        request=request
+    )
+    
     return DealResponse.model_validate(db_deal)
 
 
@@ -160,6 +173,7 @@ def get_deal(
 def update_deal(
     deal_id: int,
     deal_data: DealUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> DealResponse:
@@ -212,6 +226,16 @@ def update_deal(
 
     db.commit()
     db.refresh(deal)
+    
+    log_action(
+        db=db,
+        action="update_deal",
+        user_id=current_user.id,
+        resource_type="deal",
+        resource_id=str(deal.id),
+        request=request
+    )
+    
     return DealResponse.model_validate(deal)
 
 
@@ -250,6 +274,7 @@ def recalculate_deal_analytics(
 @router.delete("/{deal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_deal(
     deal_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> None:
@@ -267,6 +292,15 @@ def delete_deal(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions",
         )
+
+    log_action(
+        db=db,
+        action="delete_deal",
+        user_id=current_user.id,
+        resource_type="deal",
+        resource_id=str(deal.id),
+        request=request
+    )
 
     db.delete(deal)
     db.commit()
@@ -329,4 +363,3 @@ def get_deal_comps(
     # 4. Execute and return
     comps = query.limit(limit).all()
     return [DealResponse.model_validate(comp) for comp in comps]
-
