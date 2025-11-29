@@ -36,6 +36,18 @@ export function Layout({ children }: LayoutProps) {
                     Dashboard
                   </Link>
                   <Link
+                    to="/leads"
+                    className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Leads
+                  </Link>
+                  <Link
+                    to="/ai-tools"
+                    className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    AI Tools
+                  </Link>
+                  <Link
                     to="/profile"
                     className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                   >

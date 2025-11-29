@@ -14,6 +14,8 @@ import { DealDetailPage } from './pages/DealDetailPage';
 import { DealEditPage } from './pages/DealEditPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import LeadsPage from './pages/LeadsPage';
+import AIToolsPage from './pages/AIToolsPage';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -56,6 +58,26 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <DashboardPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <LeadsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-tools"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AIToolsPage />
                   </Layout>
                 </ProtectedRoute>
               }
