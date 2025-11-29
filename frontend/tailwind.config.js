@@ -6,22 +6,61 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Cal Sans', 'Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          DEFAULT: "#0F172A", // Slate 900 - Deep professional blue/black
+          foreground: "#FFFFFF",
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+          950: '#020617',
+        },
+        secondary: {
+          DEFAULT: "#F1F5F9", // Slate 100
+          foreground: "#0F172A",
+        },
+        accent: {
+          DEFAULT: "#0EA5E9", // Sky 500 - Vibrant accent
+          foreground: "#FFFFFF",
+        },
+        success: {
+          DEFAULT: "#10B981", // Emerald 500
+          foreground: "#FFFFFF",
+        },
+        destructive: {
+          DEFAULT: "#EF4444", // Red 500
+          foreground: "#FFFFFF",
+        },
+        muted: {
+          DEFAULT: "#F1F5F9",
+          foreground: "#64748B",
         },
       },
+      boxShadow: {
+        'soft': '0 2px 10px rgba(0, 0, 0, 0.03)',
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+      },
+      borderRadius: {
+        'xl': '0.75rem',
+        '2xl': '1rem',
+      }
     },
   },
   plugins: [],
 }
-
