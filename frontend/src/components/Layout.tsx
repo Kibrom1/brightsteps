@@ -59,7 +59,7 @@ export function Layout({ children }: LayoutProps) {
                   >
                     Billing
                   </Link>
-                  {user?.role === 'admin' && (
+                  {(user?.role === 'admin' || user?.role === 'Admin') && (
                     <Link
                         to="/admin"
                         className="text-purple-600 hover:text-purple-800 px-3 py-2 rounded-md text-sm font-medium"

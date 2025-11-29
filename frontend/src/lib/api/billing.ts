@@ -16,9 +16,8 @@ export const billingApi = {
     return client.get<Subscription>('/api/v1/billing/subscription');
   },
 
-  async subscribe(data: SubscriptionCreate): Promise<Subscription> {
+  async createCheckoutSession(data: SubscriptionCreate): Promise<{ url: string }> {
     const client = getApiClient();
-    return client.post<Subscription>('/api/v1/billing/subscription', data);
+    return client.post<{ url: string }>('/api/v1/billing/create-checkout-session', data);
   },
 };
-

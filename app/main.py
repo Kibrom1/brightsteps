@@ -16,11 +16,16 @@ from app.api.routes_users import router as users_router
 from app.core.config import settings
 from app.db.base import init_db
 
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="2.0.0",
     description="Real Estate Investment Platform - Backend API with Analytics Engine",
 )
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 def startup_event():

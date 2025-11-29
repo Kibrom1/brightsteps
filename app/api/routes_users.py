@@ -3,13 +3,14 @@ from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_active_user, require_admin
 from app.db.base import get_db
 from app.models.user import User
 from app.schemas.user import UserResponse, UserUpdate
+from app.core.audit import log_action
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -25,6 +26,7 @@ def get_current_user_profile(
 @router.put("/me", response_model=UserResponse)
 def update_current_user_profile(
     user_data: UserUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ) -> UserResponse:
@@ -57,6 +59,16 @@ def update_current_user_profile(
     
     db.commit()
     db.refresh(current_user)
+    
+    log_action(
+        db=db,
+        action="user_profile_update",
+        user_id=current_user.id,
+        resource_type="user",
+        resource_id=str(current_user.id),
+        request=request
+    )
+    
     return UserResponse.model_validate(current_user)
 
 
@@ -70,4 +82,3 @@ def list_users(
     """List all users (admin only)."""
     users = db.query(User).offset(skip).limit(limit).all()
     return [UserResponse.model_validate(user) for user in users]
-
