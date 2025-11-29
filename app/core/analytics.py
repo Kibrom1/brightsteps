@@ -121,8 +121,12 @@ def estimate_rent(request: Dict[str, float]) -> Tuple[float, Dict[str, float]]:
         "bedroom_multiplier": RENT_CONFIG["bedroom_multiplier"],
         "bathroom_multiplier": RENT_CONFIG["bathroom_multiplier"],
         "property_type_adjustment": property_adjustment,
-        "zip_code_used": False,  # Indicate that zip_code is not yet implemented
     }
+    
+    # Only add zip_code_used flag if zip_code was provided
+    if "zip_code" in request and request["zip_code"]:
+        assumptions["zip_code_used"] = False
+        
     return estimated, assumptions
 
 
@@ -130,8 +134,14 @@ def analyze_deal(payload: Dict) -> Dict:
     """Run cash flow and DSCR calculations and produce a rule-based score."""
 
     assumptions: Assumptions = payload.get("assumptions") or Assumptions()
-    property_tax_annual = payload["purchase_price"] * assumptions.property_tax_percent / 100
-    insurance_annual = payload["purchase_price"] * assumptions.insurance_percent / 100
+    
+    property_tax_annual = payload.get("property_tax_annual")
+    if property_tax_annual is None:
+        property_tax_annual = payload["purchase_price"] * assumptions.property_tax_percent / 100
+        
+    insurance_annual = payload.get("insurance_annual")
+    if insurance_annual is None:
+        insurance_annual = payload["purchase_price"] * assumptions.insurance_percent / 100
 
     cash_flow_inputs = {
         "purchase_price": payload["purchase_price"],

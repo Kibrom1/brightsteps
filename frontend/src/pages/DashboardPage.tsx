@@ -112,7 +112,7 @@ export function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card p-6 border-l-4 border-l-primary-500">
+        <div className="card p-6 border-l-4 border-l-primary-600">
           <div className="flex items-center">
             <div className="flex-shrink-0 p-3 rounded-lg bg-primary-50">
               <svg className="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,10 +160,10 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="card p-6 border-l-4 border-l-indigo-500">
+        <div className="card p-6 border-l-4 border-l-primary-900">
           <div className="flex items-center">
-            <div className="flex-shrink-0 p-3 rounded-lg bg-indigo-50">
-              <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex-shrink-0 p-3 rounded-lg bg-primary-50">
+              <svg className="h-6 w-6 text-primary-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
@@ -188,16 +188,16 @@ export function DashboardPage() {
                     {chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E9F0" />
                                 <XAxis dataKey="name" hide />
-                                <YAxis stroke="#64748b" fontSize={12} tickFormatter={(value) => `$${value}`} />
+                                <YAxis stroke="#9AA5B1" fontSize={12} tickFormatter={(value) => `$${value}`} />
                                 <Tooltip 
-                                    cursor={{fill: '#f1f5f9'}}
+                                    cursor={{fill: '#F6F8FB'}}
                                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} 
                                 />
                                 <Bar dataKey="cashFlow" radius={[4, 4, 0, 0]}>
                                     {chartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.cashFlow >= 0 ? '#10b981' : '#ef4444'} />
+                                        <Cell key={`cell-${index}`} fill={entry.cashFlow >= 0 ? '#1A73E8' : '#EF4444'} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -246,16 +246,16 @@ export function DashboardPage() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-200">
-                                {dealsList.slice(0, 5).map((deal) => {
+                                {dealsList.slice(0, 5).map((deal, index) => {
                                     const analytics = deal.snapshot_of_analytics_result;
                                     const cashFlow = analytics?.cash_flow;
                                     const analysis = analytics?.deal_analysis;
                                     
                                     return (
-                                        <tr key={deal.id} className="hover:bg-slate-50 transition-colors">
+                                        <tr key={deal.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-slate-100 transition-colors`}>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div className="h-10 w-10 flex-shrink-0 bg-slate-100 rounded-lg flex items-center justify-center text-slate-500">
+                                                    <div className="h-10 w-10 flex-shrink-0 bg-primary-50 rounded-lg flex items-center justify-center text-primary-600">
                                                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                                         </svg>
@@ -292,7 +292,7 @@ export function DashboardPage() {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Link to={`/deals/${deal.id}`} className="text-primary-600 hover:text-primary-900">
+                                                <Link to={`/deals/${deal.id}`} className="text-primary-600 hover:text-primary-700">
                                                     View
                                                 </Link>
                                             </td>

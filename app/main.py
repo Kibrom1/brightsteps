@@ -40,8 +40,11 @@ cors_origins = [
     "http://localhost:3000",  # Keep for compatibility
     "http://127.0.0.1:3000",
     "http://10.0.0.184:3000", # Network address
-    "*" # Allow all for now to fix strict-origin issue in dev
 ]
+
+# Add wildcard for development if needed
+if settings.DEBUG:
+    cors_origins.append("*")
 
 app.add_middleware(
     CORSMiddleware,
