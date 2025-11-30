@@ -8,58 +8,55 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Cal Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        border: "#E5E9F0",
-        input: "#E5E9F0",
-        ring: "#1A73E8",
-        background: "#F6F8FB",
-        foreground: "#1F2933",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1A73E8",
+          DEFAULT: "#0F172A", // Slate 900 - Deep professional blue/black
           foreground: "#FFFFFF",
-          50: '#E3F2FD',
-          100: '#BBDEFB',
-          200: '#90CAF9',
-          300: '#64B5F6',
-          400: '#42A5F5',
-          500: '#2196F3',
-          600: '#1A73E8', // BrightSteps Blue
-          700: '#1967D2',
-          800: '#1565C0',
-          900: '#0B5394', // Primary Dark
-          950: '#0D47A1',
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+          950: '#020617',
         },
         secondary: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#1A73E8",
+          DEFAULT: "#F1F5F9", // Slate 100
+          foreground: "#0F172A",
         },
         accent: {
-          DEFAULT: "#F2A900",
+          DEFAULT: "#0EA5E9", // Sky 500 - Vibrant accent
           foreground: "#FFFFFF",
         },
-        // Override slate to match user's neutral scale for compatibility
-        slate: {
-            50: '#F6F8FB', // App Background
-            100: '#F0F4F8',
-            200: '#E5E9F0', // Neutral Light
-            300: '#D3DCE6',
-            400: '#9AA5B1', // Neutral Mid
-            500: '#7B8794',
-            600: '#616E7C',
-            700: '#3E4C59',
-            800: '#323F4B',
-            900: '#1F2933', // Neutral Dark
-            950: '#12171D',
-        }
+        success: {
+          DEFAULT: "#10B981", // Emerald 500
+          foreground: "#FFFFFF",
+        },
+        destructive: {
+          DEFAULT: "#EF4444", // Red 500
+          foreground: "#FFFFFF",
+        },
+        muted: {
+          DEFAULT: "#F1F5F9",
+          foreground: "#64748B",
+        },
       },
       boxShadow: {
-        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
-        'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+        'soft': '0 2px 10px rgba(0, 0, 0, 0.03)',
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
       },
       borderRadius: {
-        'lg': '0.5rem', // 8px as requested
         'xl': '0.75rem',
         '2xl': '1rem',
       }
