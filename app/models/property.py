@@ -4,7 +4,7 @@ from __future__ import annotations
 import enum
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String, Boolean, JSON
 from sqlalchemy.orm import relationship
 
 from app.db.base import Base
@@ -51,6 +51,12 @@ class Property(Base):
     bathrooms = Column(Float, nullable=False)
     square_feet = Column(Integer, nullable=False)
     year_built = Column(Integer, nullable=True)
+    list_price = Column(Float, nullable=True)
+    tags = Column(JSON, nullable=True)
+
+    # Geospatial (basic lat/long support for mapping)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     
     # Phase 2: Status
     status = Column(Enum(PropertyStatus), default=PropertyStatus.EVALUATING, nullable=False)

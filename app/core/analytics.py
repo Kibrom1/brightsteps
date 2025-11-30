@@ -121,8 +121,12 @@ def estimate_rent(request: Dict[str, float]) -> Tuple[float, Dict[str, float]]:
         "bedroom_multiplier": RENT_CONFIG["bedroom_multiplier"],
         "bathroom_multiplier": RENT_CONFIG["bathroom_multiplier"],
         "property_type_adjustment": property_adjustment,
-        "zip_code_used": False,  # Indicate that zip_code is not yet implemented
     }
+    
+    # Only add zip_code_used flag if zip_code was provided
+    if "zip_code" in request and request["zip_code"]:
+        assumptions["zip_code_used"] = False
+        
     return estimated, assumptions
 
 

@@ -40,6 +40,8 @@ def _calculate_deal_analytics(deal: Deal, assumptions: Assumptions) -> Dict[str,
         "interest_rate": deal.interest_rate,
         "loan_term_years": deal.loan_term_years,
         "hoa_monthly": deal.hoa_monthly or 0.0,
+        "property_tax_annual": property_tax_annual,
+        "insurance_annual": insurance_annual,
         "assumptions": assumptions,
         "property_tax_annual": property_tax_annual,  # Pass calculated value for consistency
         "insurance_annual": insurance_annual,  # Pass calculated value for consistency
@@ -51,32 +53,10 @@ def _calculate_deal_analytics(deal: Deal, assumptions: Assumptions) -> Dict[str,
     # Run full deal analysis
     analysis_result = analyze_deal(deal_payload)
 
-    # Also calculate individual metrics for comprehensive snapshot
-    cash_flow_inputs = {
-        "purchase_price": deal.purchase_price,
-        "down_payment": deal.down_payment,
-        "interest_rate": deal.interest_rate,
-        "loan_term_years": deal.loan_term_years,
-        "monthly_rent": deal.monthly_rent,
-        "property_tax_annual": property_tax_annual,
-        "insurance_annual": insurance_annual,
-        "hoa_monthly": deal.hoa_monthly or 0.0,
-        "maintenance_percent": deal.maintenance_percent,
-        "vacancy_percent": deal.vacancy_percent,
-        "management_percent": deal.management_percent,
-    }
-
-    cash_flow_result = calculate_cash_flow(cash_flow_inputs)
-    annual_debt_service = cash_flow_result["monthly_debt_service"] * 12
-    dscr_value, dscr_interp = calculate_dscr(
-        noi_annual=cash_flow_result["noi_annual"],
-        annual_debt_service=annual_debt_service,
-    )
-
     # Combine all analytics
     analytics_snapshot = {
-        "cash_flow": cash_flow_result,
-        "dscr": {"dscr": dscr_value, "interpretation": dscr_interp},
+        "cash_flow": analysis_result["cash_flow"],
+        "dscr": analysis_result["dscr"],
         "deal_analysis": analysis_result,
     }
 

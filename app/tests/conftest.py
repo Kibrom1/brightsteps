@@ -46,12 +46,15 @@ def client() -> Generator:
 
 @pytest.fixture(scope="module")
 def normal_user(db) -> User:
+    existing = db.query(User).filter(User.email == "test@example.com").first()
+    if existing:
+        return existing
+
     user = User(
         email="test@example.com",
         hashed_password="hashedpassword",
         full_name="Test User",
-        role=UserRole.USER,
-        is_active=True,
+        role=UserRole.INVESTOR,
     )
     db.add(user)
     db.commit()
