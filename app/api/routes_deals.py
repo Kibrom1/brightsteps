@@ -31,6 +31,8 @@ def _calculate_deal_analytics(deal: Deal, assumptions: Assumptions) -> Dict[str,
         insurance_annual = deal.purchase_price * assumptions.insurance_percent / 100
 
     # Build payload for analyze_deal
+    # Pass calculated property_tax_annual, insurance_annual, and deal-specific percentages
+    # to ensure consistency between top-level cash_flow and deal_analysis.cash_flow
     deal_payload = {
         "purchase_price": deal.purchase_price,
         "down_payment": deal.down_payment,
@@ -41,6 +43,11 @@ def _calculate_deal_analytics(deal: Deal, assumptions: Assumptions) -> Dict[str,
         "property_tax_annual": property_tax_annual,
         "insurance_annual": insurance_annual,
         "assumptions": assumptions,
+        "property_tax_annual": property_tax_annual,  # Pass calculated value for consistency
+        "insurance_annual": insurance_annual,  # Pass calculated value for consistency
+        "maintenance_percent": deal.maintenance_percent,  # Use deal-specific value
+        "vacancy_percent": deal.vacancy_percent,  # Use deal-specific value
+        "management_percent": deal.management_percent,  # Use deal-specific value
     }
 
     # Run full deal analysis

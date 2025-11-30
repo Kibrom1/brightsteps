@@ -134,15 +134,20 @@ def analyze_deal(payload: Dict) -> Dict:
     """Run cash flow and DSCR calculations and produce a rule-based score."""
 
     assumptions: Assumptions = payload.get("assumptions") or Assumptions()
-    
+    # Use provided values if available, otherwise calculate from assumptions
     property_tax_annual = payload.get("property_tax_annual")
     if property_tax_annual is None:
         property_tax_annual = payload["purchase_price"] * assumptions.property_tax_percent / 100
-        
+    
     insurance_annual = payload.get("insurance_annual")
     if insurance_annual is None:
         insurance_annual = payload["purchase_price"] * assumptions.insurance_percent / 100
 
+    # Use provided percentages if available, otherwise use assumptions
+    maintenance_percent = payload.get("maintenance_percent", assumptions.maintenance_percent)
+    vacancy_percent = payload.get("vacancy_percent", assumptions.vacancy_percent)
+    management_percent = payload.get("management_percent", assumptions.management_percent)
+    
     cash_flow_inputs = {
         "purchase_price": payload["purchase_price"],
         "down_payment": payload["down_payment"],
@@ -152,9 +157,9 @@ def analyze_deal(payload: Dict) -> Dict:
         "property_tax_annual": property_tax_annual,
         "insurance_annual": insurance_annual,
         "hoa_monthly": payload.get("hoa_monthly", 0.0),
-        "maintenance_percent": assumptions.maintenance_percent,
-        "vacancy_percent": assumptions.vacancy_percent,
-        "management_percent": assumptions.management_percent,
+        "maintenance_percent": maintenance_percent,
+        "vacancy_percent": vacancy_percent,
+        "management_percent": management_percent,
     }
 
     cash_flow_result = calculate_cash_flow(cash_flow_inputs)
@@ -190,7 +195,8 @@ def analyze_deal(payload: Dict) -> Dict:
         score -= 10
         reasons.append("DSCR below 1.1 may be risky")
 
-    if assumptions.vacancy_percent <= 5:
+    # Use the actual vacancy_percent used in calculations (deal-specific or assumption)
+    if vacancy_percent <= 5:
         score += 5
         reasons.append("Low assumed vacancy")
 

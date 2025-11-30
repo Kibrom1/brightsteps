@@ -4,11 +4,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadsApi } from '../lib/api/leads';
-import { LeadStatus } from '../types';
-import { EmptyState } from '../components/ui/EmptyState';
+import { LeadStatus, type Lead } from '../types';
 
 export default function LeadsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const queryClient = useQueryClient();
 
   const { data: leads, isLoading, error } = useQuery({
@@ -25,6 +25,15 @@ export default function LeadsPage() {
     },
   });
 
+  const updateLeadMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Lead> }) => 
+      leadsApi.updateLead(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      setEditingLead(null);
+    },
+  });
+
   const handleCreateDemoLead = () => {
     createLeadMutation.mutate({
       first_name: 'New',
@@ -32,6 +41,28 @@ export default function LeadsPage() {
       email: `lead${Date.now()}@example.com`,
       status: LeadStatus.NEW,
     });
+  };
+
+  const handleEdit = (lead: Lead) => {
+    setEditingLead(lead);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingLead) return;
+
+    const formData = new FormData(e.currentTarget);
+    const updateData = {
+      first_name: formData.get('first_name') as string,
+      last_name: formData.get('last_name') as string,
+      email: formData.get('email') as string || undefined,
+      phone: formData.get('phone') as string || undefined,
+      status: formData.get('status') as LeadStatus,
+      source: formData.get('source') as string || undefined,
+      notes: formData.get('notes') as string || undefined,
+    };
+
+    updateLeadMutation.mutate({ id: editingLead.id, data: updateData });
   };
 
   if (isLoading) {
@@ -124,7 +155,12 @@ export default function LeadsPage() {
                         {new Date(lead.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-primary-600 hover:text-primary-900 font-medium">Edit</button>
+                        <button 
+                          onClick={() => handleEdit(lead)}
+                          className="text-primary-600 hover:text-primary-900 font-medium"
+                        >
+                          Edit
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -149,6 +185,160 @@ export default function LeadsPage() {
                     Add Your First Lead
                 </button>
              </div>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editingLead && (
+          <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+              {/* Background overlay */}
+              <div 
+                className="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity"
+                onClick={() => setEditingLead(null)}
+              ></div>
+
+              {/* Modal panel */}
+              <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form onSubmit={handleSaveEdit}>
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-medium text-slate-900" id="modal-title">
+                        Edit Lead
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setEditingLead(null)}
+                        className="text-slate-400 hover:text-slate-500"
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="first_name" className="block text-sm font-medium text-slate-700">
+                            First Name
+                          </label>
+                          <input
+                            type="text"
+                            name="first_name"
+                            id="first_name"
+                            required
+                            defaultValue={editingLead.first_name}
+                            className="mt-1 input-field"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="last_name" className="block text-sm font-medium text-slate-700">
+                            Last Name
+                          </label>
+                          <input
+                            type="text"
+                            name="last_name"
+                            id="last_name"
+                            required
+                            defaultValue={editingLead.last_name}
+                            className="mt-1 input-field"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          id="email"
+                          defaultValue={editingLead.email || ''}
+                          className="mt-1 input-field"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
+                          Phone
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          id="phone"
+                          defaultValue={editingLead.phone || ''}
+                          className="mt-1 input-field"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="status" className="block text-sm font-medium text-slate-700">
+                          Status
+                        </label>
+                        <select
+                          name="status"
+                          id="status"
+                          defaultValue={editingLead.status}
+                          className="mt-1 input-field"
+                        >
+                          <option value={LeadStatus.NEW}>New</option>
+                          <option value={LeadStatus.CONTACTED}>Contacted</option>
+                          <option value={LeadStatus.QUALIFIED}>Qualified</option>
+                          <option value={LeadStatus.LOST}>Lost</option>
+                          <option value={LeadStatus.CLOSED}>Closed</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor="source" className="block text-sm font-medium text-slate-700">
+                          Source
+                        </label>
+                        <input
+                          type="text"
+                          name="source"
+                          id="source"
+                          defaultValue={editingLead.source || ''}
+                          placeholder="e.g., Website, Referral"
+                          className="mt-1 input-field"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="notes" className="block text-sm font-medium text-slate-700">
+                          Notes
+                        </label>
+                        <textarea
+                          name="notes"
+                          id="notes"
+                          rows={3}
+                          defaultValue={editingLead.notes || ''}
+                          className="mt-1 input-field"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button
+                      type="submit"
+                      disabled={updateLeadMutation.isPending}
+                      className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                    >
+                      {updateLeadMutation.isPending ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingLead(null)}
+                      className="mt-3 w-full inline-flex justify-center rounded-lg border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         )}
       </div>

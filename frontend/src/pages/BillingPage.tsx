@@ -12,7 +12,17 @@ export default function BillingPage() {
 
   const { data: subscription, isLoading: isLoadingSub } = useQuery({
     queryKey: ['subscription'],
-    queryFn: billingApi.getMySubscription,
+    queryFn: async () => {
+      try {
+        return await billingApi.getMySubscription();
+      } catch (error: any) {
+        // Ignore 404 (no subscription) errors
+        if (error.message && error.message.includes('No active subscription found')) {
+          return null;
+        }
+        throw error;
+      }
+    },
     retry: false,
   });
 
@@ -58,7 +68,12 @@ export default function BillingPage() {
       )}
 
       <div className="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0 xl:grid-cols-3">
-        {plans?.map((plan) => (
+        {!plans || plans.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+                <p className="text-slate-500">No pricing plans available at the moment.</p>
+            </div>
+        ) : (
+            plans.map((plan) => (
           <div key={plan.id} className="border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 bg-white">
             <div className="p-6">
               <h2 className="text-lg leading-6 font-medium text-gray-900">{plan.name}</h2>
@@ -91,7 +106,7 @@ export default function BillingPage() {
               </ul>
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
   );
