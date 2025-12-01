@@ -23,7 +23,7 @@ function formatPercent(value: number): string {
   return `${value.toFixed(2)}%`;
 }
 
-export function DashboardPage() {
+export default function DashboardPage() {
   const { user } = useAuth();
   const { data: deals, isLoading, error } = useQuery<Deal[]>({
     queryKey: ['deals'],

@@ -12,15 +12,15 @@ import { lazy, Suspense } from 'react';
 import { SkeletonCard } from './components/ui/Skeleton';
 
 // Lazy load pages for better performance
-const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
-const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })));
-const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const DealCreatePage = lazy(() => import('./pages/DealCreatePage').then(m => ({ default: m.DealCreatePage })));
-const DealDetailPage = lazy(() => import('./pages/DealDetailPage').then(m => ({ default: m.DealDetailPage })));
-const DealEditPage = lazy(() => import('./pages/DealEditPage').then(m => ({ default: m.DealEditPage })));
-const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const DealCreatePage = lazy(() => import('./pages/DealCreatePage'));
+const DealDetailPage = lazy(() => import('./pages/DealDetailPage'));
+const DealEditPage = lazy(() => import('./pages/DealEditPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const LeadsPage = lazy(() => import('./pages/LeadsPage'));
 const AIToolsPage = lazy(() => import('./pages/AIToolsPage'));
 const BillingPage = lazy(() => import('./pages/BillingPage'));

@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { FormField } from '../components/FormField';
 
-export function LoginPage() {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
