@@ -4,6 +4,8 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { PageTitle } from '../components/PageTitle';
+import { FormField } from '../components/FormField';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,7 +31,9 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <>
+      <PageTitle title="Sign In" description="Sign in to your BrightSteps account" />
+      <div className="min-h-screen flex bg-white">
       {/* Left Side - Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-white z-10 relative">
         <div className="mx-auto w-full max-w-sm lg:w-96">
@@ -64,43 +68,29 @@ export function LoginPage() {
                 </div>
               )}
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-                  Email address
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-shadow"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
+              <FormField
+                label="Email address"
+                type="email"
+                name="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                error={error && error.toLowerCase().includes('email') ? error : undefined}
+              />
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2.5 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-shadow"
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
+              <FormField
+                label="Password"
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                error={error && error.toLowerCase().includes('password') ? error : undefined}
+              />
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -157,6 +147,7 @@ export function LoginPage() {
             <p className="text-lg text-slate-200 max-w-md">Make data-driven investment decisions with our comprehensive suite of analysis tools.</p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -15,7 +15,7 @@ export function Skeleton({ className = '', width, height, rounded = false }: Ske
 
   return (
     <div
-      className={`bg-gray-200 animate-pulse ${rounded ? 'rounded' : ''} ${className}`}
+      className={`bg-slate-200 animate-pulse ${rounded ? 'rounded' : ''} ${className}`}
       style={style}
     />
   );
@@ -33,9 +33,31 @@ export function SkeletonText({ lines = 1, className = '' }: { lines?: number; cl
 
 export function SkeletonCard({ className = '' }: { className?: string }) {
   return (
-    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
+    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm p-6 ${className}`}>
       <Skeleton height={24} width="60%" rounded className="mb-4" />
       <SkeletonText lines={3} />
+    </div>
+  );
+}
+
+export function SkeletonTable({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-slate-200">
+        <Skeleton height={24} width="200px" />
+      </div>
+      <div className="divide-y divide-slate-200">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div key={i} className="p-6 flex items-center space-x-4">
+            <Skeleton height={40} width={40} rounded />
+            <div className="flex-1 space-y-2">
+              <Skeleton height={16} width="60%" />
+              <Skeleton height={14} width="40%" />
+            </div>
+            <Skeleton height={32} width={100} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

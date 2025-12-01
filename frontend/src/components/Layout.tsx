@@ -3,6 +3,7 @@
  */
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { UserRole } from '../types';
 import { useState } from 'react';
 
 interface LayoutProps {
@@ -68,7 +69,7 @@ export function Layout({ children }: LayoutProps) {
                   >
                     Billing
                   </Link>
-                  {(user?.role === 'admin' || user?.role === 'Admin') && (
+                  {user?.role === UserRole.ADMIN && (
                     <Link
                         to="/admin"
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -138,7 +139,7 @@ export function Layout({ children }: LayoutProps) {
                     <Link to="/leads" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Leads</Link>
                     <Link to="/ai-tools" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">AI Tools</Link>
                     <Link to="/billing" className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50">Billing</Link>
-                     {(user?.role === 'admin' || user?.role === 'Admin') && (
+                     {user?.role === UserRole.ADMIN && (
                         <Link to="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50">Admin</Link>
                     )}
                 </div>
