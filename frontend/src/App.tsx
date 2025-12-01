@@ -4,27 +4,43 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { VerifyEmailPage } from './pages/VerifyEmailPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { DealCreatePage } from './pages/DealCreatePage';
-import { DealDetailPage } from './pages/DealDetailPage';
-import { DealEditPage } from './pages/DealEditPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import LeadsPage from './pages/LeadsPage';
-import AIToolsPage from './pages/AIToolsPage';
-import BillingPage from './pages/BillingPage';
+import { lazy, Suspense } from 'react';
+import { SkeletonCard } from './components/ui/Skeleton';
+
+// Lazy load pages for better performance
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const DealCreatePage = lazy(() => import('./pages/DealCreatePage').then(m => ({ default: m.DealCreatePage })));
+const DealDetailPage = lazy(() => import('./pages/DealDetailPage').then(m => ({ default: m.DealDetailPage })));
+const DealEditPage = lazy(() => import('./pages/DealEditPage').then(m => ({ default: m.DealEditPage })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+const LeadsPage = lazy(() => import('./pages/LeadsPage'));
+const AIToolsPage = lazy(() => import('./pages/AIToolsPage'));
+const BillingPage = lazy(() => import('./pages/BillingPage'));
 
 // Admin Pages
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import UserManagement from './pages/admin/UserManagement';
-import FeatureFlags from './pages/admin/FeatureFlags';
-import AuditLogs from './pages/admin/AuditLogs';
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const FeatureFlags = lazy(() => import('./pages/admin/FeatureFlags'));
+const AuditLogs = lazy(() => import('./pages/admin/AuditLogs'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="space-y-4 w-full max-w-4xl px-4">
+      <SkeletonCard />
+      <SkeletonCard />
+    </div>
+  </div>
+);
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -38,16 +54,20 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ToastProvider>
+            <BrowserRouter>
+              <Routes>
             {/* Public routes */}
             <Route
               path="/login"
               element={
                 <Layout>
-                  <LoginPage />
+                  <Suspense fallback={<PageLoader />}>
+                    <LoginPage />
+                  </Suspense>
                 </Layout>
               }
             />
@@ -55,7 +75,9 @@ function App() {
               path="/register"
               element={
                 <Layout>
-                  <RegisterPage />
+                  <Suspense fallback={<PageLoader />}>
+                    <RegisterPage />
+                  </Suspense>
                 </Layout>
               }
             />
@@ -63,7 +85,9 @@ function App() {
               path="/verify-email"
               element={
                 <Layout>
-                  <VerifyEmailPage />
+                  <Suspense fallback={<PageLoader />}>
+                    <VerifyEmailPage />
+                  </Suspense>
                 </Layout>
               }
             />
@@ -74,7 +98,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DashboardPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <DashboardPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -84,7 +110,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <LeadsPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <LeadsPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -94,7 +122,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <AIToolsPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <AIToolsPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -104,7 +134,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <BillingPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <BillingPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -114,7 +146,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DealCreatePage />
+                    <Suspense fallback={<PageLoader />}>
+                      <DealCreatePage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -124,7 +158,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DealDetailPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <DealDetailPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -134,7 +170,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <DealEditPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <DealEditPage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -144,7 +182,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <ProfilePage />
+                    <Suspense fallback={<PageLoader />}>
+                      <ProfilePage />
+                    </Suspense>
                   </Layout>
                 </ProtectedRoute>
               }
@@ -155,14 +195,16 @@ function App() {
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <AdminLayout />
+                  <Suspense fallback={<PageLoader />}>
+                    <AdminLayout />
+                  </Suspense>
                 </ProtectedRoute>
               }
             >
-              <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="feature-flags" element={<FeatureFlags />} />
-              <Route path="audit-logs" element={<AuditLogs />} />
+              <Route index element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
+              <Route path="users" element={<Suspense fallback={<PageLoader />}><UserManagement /></Suspense>} />
+              <Route path="feature-flags" element={<Suspense fallback={<PageLoader />}><FeatureFlags /></Suspense>} />
+              <Route path="audit-logs" element={<Suspense fallback={<PageLoader />}><AuditLogs /></Suspense>} />
             </Route>
 
             {/* Redirect root to dashboard */}
@@ -173,14 +215,18 @@ function App() {
               path="*"
               element={
                 <Layout>
-                  <NotFoundPage />
+                  <Suspense fallback={<PageLoader />}>
+                    <NotFoundPage />
+                  </Suspense>
                 </Layout>
               }
             />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+              </Routes>
+            </BrowserRouter>
+          </ToastProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

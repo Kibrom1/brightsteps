@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { billingApi } from '../lib/api/billing';
 import { PlanInterval } from '../types';
+import { useToast } from '../contexts/ToastContext';
+import { Skeleton, SkeletonCard } from '../components/ui/Skeleton';
 
 export default function BillingPage() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const { data: plans, isLoading: isLoadingPlans } = useQuery({
     queryKey: ['plans'],
@@ -33,7 +36,8 @@ export default function BillingPage() {
       window.location.href = data.url;
     },
     onError: (error) => {
-      alert('Failed to start subscription: ' + error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start subscription';
+      showToast(errorMessage, 'error');
     }
   });
 
@@ -41,7 +45,23 @@ export default function BillingPage() {
     subscribeMutation.mutate(planId);
   };
 
-  if (isLoadingPlans || isLoadingSub) return <div>Loading...</div>;
+  if (isLoadingPlans || isLoadingSub) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          <div className="text-center">
+            <Skeleton height={48} width="300px" className="mx-auto mb-4" />
+            <Skeleton height={24} width="400px" className="mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

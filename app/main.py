@@ -3,6 +3,10 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from app.api.routes_admin import router as admin_router
 from app.api.routes_ai import router as ai_router
@@ -31,25 +35,54 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def startup_event():
     init_db()
 
+# Security: Add security headers middleware
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to all responses."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        # Add security headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        if not settings.DEBUG:
+            # Only add HSTS in production
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+if not settings.DEBUG:
+    app.add_middleware(SecurityHeadersMiddleware)
+    
+    # Trusted host middleware for production
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["brightsteps.com", "*.brightsteps.com", "localhost", "127.0.0.1"]
+    )
+
 # Configure CORS
 # Allow all origins in development for easier debugging
 # In production, specify exact origins
-cors_origins = [
-    "http://localhost:5173",  # Vite default port (primary)
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",  # Keep for compatibility
-    "http://127.0.0.1:3000",
-    "http://10.0.0.184:3000", # Network address
-    "*" # Allow all for now to fix strict-origin issue in dev
-]
+if settings.DEBUG:
+    cors_origins = [
+        "http://localhost:5173",  # Vite default port (primary)
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",  # Keep for compatibility
+        "http://127.0.0.1:3000",
+        "http://10.0.0.184:3000", # Network address
+    ]
+else:
+    # Production: Use environment variable or default to empty list
+    import os
+    cors_origins_env = os.getenv("CORS_ORIGINS", "")
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=cors_origins,  # Never use "*" with allow_credentials=True
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # Include routers
@@ -66,5 +99,24 @@ app.include_router(billing_router)
 
 @app.get("/health", tags=["health"])
 def health_check() -> dict:
-    """Simple health check endpoint."""
-    return {"status": "ok", "version": "2.0.0"}
+    """Health check endpoint for monitoring and load balancers."""
+    from app.db.base import SessionLocal
+    from sqlalchemy import text
+    
+    # Check database connectivity
+    db_status = "ok"
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    finally:
+        # Always close the database session, even if an exception occurred
+        db.close()
+    
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "version": "2.0.0",
+        "database": db_status,
+        "debug": settings.DEBUG,
+    }

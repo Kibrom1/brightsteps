@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { dealsApi } from '../lib/api/deals';
 import type { Deal } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { PageTitle } from '../components/PageTitle';
+import { Skeleton, SkeletonCard } from '../components/ui/Skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 function formatCurrency(amount: number): string {
@@ -30,9 +32,27 @@ export function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
+      <>
+        <PageTitle title="Dashboard" description="View your portfolio overview and recent deals" />
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <Skeleton height={36} width="300px" />
+              <Skeleton height={20} width="400px" />
+            </div>
+            <Skeleton height={40} width="180px" className="mt-4 sm:mt-0" />
+          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <SkeletonCard className="lg:col-span-1" />
+            <SkeletonCard className="lg:col-span-2" />
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -86,9 +106,11 @@ export function DashboardPage() {
   })).slice(0, 5); // Top 5
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <>
+      <PageTitle title="Dashboard" description="View your portfolio overview and recent deals" />
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Welcome back, {user?.full_name.split(' ')[0]}
@@ -306,6 +328,7 @@ export function DashboardPage() {
             </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
