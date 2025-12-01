@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { getApiClient } from '../lib/api-client';
 
-export function VerifyEmailPage() {
+export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');

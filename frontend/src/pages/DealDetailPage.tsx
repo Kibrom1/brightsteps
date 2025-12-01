@@ -20,7 +20,7 @@ function formatPercent(value: number): string {
   return `${value.toFixed(2)}%`;
 }
 
-export function DealDetailPage() {
+export default function DealDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dealsApi } from '../lib/api/deals';
 import type { Deal, DealFormData } from '../types';
 
-export function DealEditPage() {
+export default function DealEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

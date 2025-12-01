@@ -3,7 +3,7 @@
  */
 import { useAuth } from '../contexts/AuthContext';
 
-export function ProfilePage() {
+export default function ProfilePage() {
   const { user } = useAuth();
 
   if (!user) {
